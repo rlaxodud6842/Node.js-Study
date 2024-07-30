@@ -12,10 +12,19 @@ var app = http.createServer(function(request,response){
 
     if(pathname === '/'){
       if(queryData.id === undefined){
-        fs.readFile(`data/${queryData.id}`,'utf-8',function(err,description){
+        fs.readdir('./data',function(err,filelist){
           var title = 'Welcome';
-          var description = 'Hello, node.js';
-          var template = `
+        var description = 'Hello, node.js';
+
+        var list = '<ul>';
+        var i = 0;
+        while(i < filelist.length){
+          list = list + `<li><a href ="/?id=${filelist[i]}">${filelist[i]}</a></li>`;
+          i = i + 1;
+        }
+        list = list + '</ul>';
+
+        var template = `
         <!doctype html>
         <html>
         <head>
@@ -24,11 +33,7 @@ var app = http.createServer(function(request,response){
         </head>
         <body>
           <h1><a href="/">WEB</a></h1>
-          <ul>
-            <li><a href="/?id=HTML">HTML</a></li>
-            <li><a href="/?id=CSS">CSS</a></li>
-            <li><a href="/?id=JavaScript">JavaScript</a></li>
-          </ul>
+          ${list}
           <h2>${title}</h2>
           <p>${description}
           </p>
@@ -36,10 +41,19 @@ var app = http.createServer(function(request,response){
         </html>
         `;
         response.writeHead(200);
-        response.end(template);//얘가 경로를 읽어다가 보여주는 건데. 지금 쿼리데이터
-        //즉 URL에 /?id = asdf 에 해당하는걸 만들어 표시중
+        response.end(template);
         });
       }else{
+        fs.readdir('./data',function(err,filelist){
+        var title = 'Welcome';
+        var description = 'Hello, node.js';
+        var list = '<ul>';
+        var i = 0;
+        while(i < filelist.length){
+          list = list + `<li><a href ="/?id=${filelist[i]}">${filelist[i]}</a></li>`;
+          i = i + 1;
+        }
+        list = list + '</ul>';
         fs.readFile(`data/${queryData.id}`,'utf-8',function(err,description){
           var title = queryData.id;
           var template = `
@@ -51,11 +65,7 @@ var app = http.createServer(function(request,response){
         </head>
         <body>
           <h1><a href="/">WEB</a></h1>
-          <ul>
-            <li><a href="/?id=HTML">HTML</a></li>
-            <li><a href="/?id=CSS">CSS</a></li>
-            <li><a href="/?id=JavaScript">JavaScript</a></li>
-          </ul>
+          ${list}
           <h2>${title}</h2>
           <p>${description}
           </p>
@@ -63,9 +73,9 @@ var app = http.createServer(function(request,response){
         </html>
         `;
         response.writeHead(200);
-        response.end(template);//얘가 경로를 읽어다가 보여주는 건데. 지금 쿼리데이터
-        //즉 URL에 /?id = asdf 에 해당하는걸 만들어 표시중
+        response.end(template);
         });
+      });
       } 
     }else{
       response.writeHead(404);
