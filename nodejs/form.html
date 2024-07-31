@@ -1,0 +1,13 @@
+form에 엑션에 있는 서버로, name에 해당하는 이름으로 데이터를 보낸다.
+결과 : http://localhost:3000/process?title=asd&description=asd
+주의할점 : action의 method를 Post 방식으로 보내야 한다. 수정이 멋대로 될 수 있기에
+<form action="http://localhost:3000/process" method = "post"> 
+    <p>
+        <input type = "text" name ="title"></p>
+    <p>
+        <textarea name = "description"></textarea>
+    </p>
+    <p>
+        <input type = 'submit'>
+    </p>
+</form>
