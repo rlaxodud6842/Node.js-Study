@@ -3,6 +3,7 @@ var fs = require('fs');
 var url = require('url');
 var qs = require('querystring');
 const path = require('path');
+const { title } = require('process');
 // 얘들은 모듈이다. import격인가봄. url이라는 이름으로 사용하겠다.
 // pm2 start main.js --watch
 function templateHTML(title, list,body){
@@ -39,7 +40,7 @@ var app = http.createServer(function(request,response){
     var _url = request.url;
     var queryData = url.parse(_url, true).query;
     var pathname = url.parse(_url, true).pathname;
-    console.log(pathname);
+    console.log(queryData);
 
     if(pathname === '/'){
       if(queryData.id === undefined){
@@ -86,15 +87,17 @@ var app = http.createServer(function(request,response){
       request.on('data',function(data){
         body += data;
       });
-
       request.on('end',function(){
         var post = qs.parse(body);
         var title = post.title;
         var description = post.description;
-
+        fs.writeFile(`data/${title}`,description,'utf-8',function(err){
+          response.writeHead(302,{location:`/?id=${title}`}); //302는 리다이렉션 시켜라.
+          response.end();
+        })
       });
-      response.writeHead(200);
-      response.end('Success');
+      
+
     }else{
       response.writeHead(404);
       response.end('Not Found');
