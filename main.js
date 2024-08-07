@@ -4,7 +4,8 @@ var url = require('url');
 var qs = require('querystring');
 const path = require('path');
 const { title } = require('process');
-var template = require('./lib/template.js')
+var template = require('./lib/template.js');
+var sanitizehtml = require('sanitize-html'); //예민한  <script> 같은 주입성 공격에 대비한 살균하는 녀석
 // 얘들은 모듈이다. import격인가봄. url이라는 이름으로 사용하겠다.
 // pm2 start main.js --watch
 
@@ -29,12 +30,14 @@ var app = http.createServer(function(request,response){
         fs.readdir('./data',function(err,filelist){
           var filteredId = path.parse(queryData.id).base;
           fs.readFile(`data/${filteredId}`,'utf-8',function(err,description){
-            var list = templateList(filelist);
+            var list = template.list(filelist);
+            var sanitizedTitle = sanitizehtml(title);
+            var sanitizedDescription = sanitizehtml(description);
             var title = queryData.id;
-            var html = template.html(title,list,
-              `<h2>${title}</h2>${description}`,
+            var html = template.html(sanitizedTitle,list,
+              `<h2>${sanitizedTitle}</h2>${sanitizedDescription}`,
               `<a href="/create">Create</a>
-              <a href="/update?id=${title}">Update</a>`
+              <a href="/update?id=${sanitizedTitle}">Update</a>`
             );
           response.writeHead(200);
           response.end(html);
