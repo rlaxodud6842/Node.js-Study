@@ -4,39 +4,10 @@ var url = require('url');
 var qs = require('querystring');
 const path = require('path');
 const { title } = require('process');
+var template = require('./lib/template.js')
 // 얘들은 모듈이다. import격인가봄. url이라는 이름으로 사용하겠다.
 // pm2 start main.js --watch
 
-var template = {
-  html : function(title, list, body, control){
-    return `
-          <!doctype html>
-          <html>
-          <head>
-            <title>WEB - ${title}</title>
-            <meta charset="utf-8">
-          </head>
-          <body>
-            <h1><a href="/">WEB</a></h1>
-            ${list}
-            ${control}
-            ${body}
-            </p>
-          </body>
-          </html>
-          `;
-  },
-  list : function(filelist){
-    var list = '<ul>';
-    var i = 0;
-    while(i < filelist.length){
-      list = list + `<li><a href ="/?id=${filelist[i]}">${filelist[i]}</a></li>`;
-      i = i + 1;
-    }
-    list = list + '</ul>';
-    return list;
-  }
-}
 
 var app = http.createServer(function(request,response){
     var _url = request.url;
@@ -56,7 +27,8 @@ var app = http.createServer(function(request,response){
         })
       }else{
         fs.readdir('./data',function(err,filelist){
-          fs.readFile(`data/${queryData.id}`,'utf-8',function(err,description){
+          var filteredId = path.parse(queryData.id).base;
+          fs.readFile(`data/${filteredId}`,'utf-8',function(err,description){
             var list = templateList(filelist);
             var title = queryData.id;
             var html = template.html(title,list,
@@ -85,7 +57,7 @@ var app = http.createServer(function(request,response){
       </form>
       `,``);
         response.writeHead(200);
-        response.end(template);
+        response.end(html);
         })
     }else if (pathname === '/create_process'){
       var body = '';
@@ -104,7 +76,8 @@ var app = http.createServer(function(request,response){
       });
     }else if(pathname === `/update`){
       fs.readdir('./data',function(err,filelist){
-        fs.readFile(`data/${queryData.id}`,'utf-8',function(err,description){
+        var filteredId = path.parse(queryData.id).base;
+        fs.readFile(`data/${filteredId}`,'utf-8',function(err,description){
           var list = template.list(filelist);
           var title = queryData.id;
           var html = template.html(title,list,
@@ -128,7 +101,7 @@ var app = http.createServer(function(request,response){
             </form>`
           );
         response.writeHead(200);
-        response.end(template);
+        response.end(html);
         });
       }); 
     }else if(pathname === `/update_process`){
@@ -159,7 +132,8 @@ var app = http.createServer(function(request,response){
       request.on('end',function(){
         var post = qs.parse(body);
         var id = post.id;
-        fs.unlink(`data/${id}`,function(err){
+        var filteredId = path.parse(id).base;
+        fs.unlink(`data/${filteredId}`,function(err){
           response.writeHead(302,{location:`/`}); //302는 리다이렉션 시켜라.
             response.end();
         })
@@ -168,8 +142,6 @@ var app = http.createServer(function(request,response){
       response.writeHead(404);
       response.end('Not Found');
     }
-
-    
-
 });
+console.log(`http://localhost:3000/`)
 app.listen(3000);
